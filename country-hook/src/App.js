@@ -26,7 +26,7 @@ const useCountry = (name) => {
         console.log(response.data)
       })
     }
-  }, [setCountry, name])
+  }, [name])
 
   if ( name === '') {return null}
   if (!country) {return []}
