@@ -7,8 +7,7 @@ const setToken = (newToken) => {
   token = `bearer ${newToken}`
 }
 
-export const getAll = () =>
-  axios.get(baseUrl).then(res => res.data)
+export const getAll = () => axios.get(baseUrl).then((res) => res.data)
 
 export const create = async (newObject) => {
   const config = {

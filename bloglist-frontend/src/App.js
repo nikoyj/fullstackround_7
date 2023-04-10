@@ -5,10 +5,14 @@ import loginService from './services/login'
 import Togglable from './components/Togglable'
 import LoginForm from './components/loginForm'
 import BlogForm from './components/blogForm'
-import Notification from './components/Notification'
 import { useNotificationDispatch } from './notificationContext'
 import { useQuery } from 'react-query'
 import { getAll } from './services/blogs'
+import Menu from './components/Menu'
+import { Routes, Route, useMatch, Link } from 'react-router-dom'
+import User from './components/user'
+import { getUsers } from './services/users'
+import UserBlogList from './components/userBlogList'
 
 const App = () => {
   const [username, setUsername] = useState('')
@@ -18,8 +22,9 @@ const App = () => {
   const blogFormRef = useRef()
 
   const result = useQuery('blogs', getAll, {
-    retry: true
+    retry: false
   })
+  const resultuser = useQuery('users', getUsers)
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
@@ -29,10 +34,21 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
-  if (result.isLoading) return <div> Loading data... </div>
-  if (result.isError) return <div> Blog service is unavailable due to an error 😔 </div>
-
+  const users = resultuser.data
   const blogs = result.data
+  const matchblog = useMatch('/blogs/:id')
+  const matchuser = useMatch('/users/:id')
+
+  if (result.isLoading || resultuser.isLoading)
+    return <div> Loading data... </div>
+  if (result.isError || resultuser.isError)
+    return <div> Blog service is unavailable due to an error 😔 </div>
+  const chosenblog = matchblog
+    ? blogs.find((blog) => blog.id === matchblog.params.id)
+    : null
+  const chosenuser = matchuser
+    ? users.find((user) => user.id === matchuser.params.id)
+    : null
 
   const setMessage = (message, error) => {
     dispatch({
@@ -43,7 +59,6 @@ const App = () => {
       dispatch({ type: 'CLEAR' })
     }, 5 * 1000)
   }
-
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -76,9 +91,6 @@ const App = () => {
 
   return (
     <div>
-      <h1>Blogs</h1>
-      <Notification />
-
       {user === null ? (
         <Togglable buttonLabel="login">
           <LoginForm
@@ -91,22 +103,65 @@ const App = () => {
         </Togglable>
       ) : (
         <div>
-          <p>
-            {user.name} logged in
-            <button onClick={handleLogout} type="submit">
-              logout
-            </button>
-          </p>
-          <Togglable buttonLabel="new blog" ref={blogFormRef}>
-            <BlogForm />
-          </Togglable>
-          <ul>
-            {blogs
-              .sort((blog, blog2) => blog2.likes - blog.likes)
-              .map((blog) => (
-                <Blog key={blog.id} blog={blog} user={user} />
-              ))}
-          </ul>
+          <Menu name={user.name} handleLogout={handleLogout} />
+          <h1>Blog app</h1>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <div>
+                  <Togglable buttonLabel="new blog" ref={blogFormRef}>
+                    <BlogForm />
+                  </Togglable>
+                  <ul>
+                    {blogs
+                      .sort((blog, blog2) => blog2.likes - blog.likes)
+                      .map((blog) => (
+                        <li key={blog.id}>
+                          {' '}
+                          <Link to={`/blogs/${blog.id}`}>
+                            {' '}
+                            {blog.title} by {blog.author}{' '}
+                          </Link>{' '}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              }
+            />
+            <Route
+              path="/blogs/:id"
+              element={<Blog blog={chosenblog} user={user} />}
+            />
+            <Route
+              path="/users/:id"
+              element={
+                chosenuser === null ? null : (
+                  <UserBlogList
+                    user={chosenuser}
+                    blogs={blogs.filter(
+                      (blog) => blog.user.id === chosenuser.id
+                    )}
+                  />
+                )
+              }
+            />
+
+            <Route
+              path="/users"
+              element={
+                <div>
+                  <h2> Users </h2>
+                  <p> blogs created by the user </p>
+                  {users.map((user) => (
+                    <table key={user.id}>
+                      <tbody>{<User user={user} />}</tbody>
+                    </table>
+                  ))}
+                </div>
+              }
+            />
+          </Routes>
         </div>
       )}
     </div>

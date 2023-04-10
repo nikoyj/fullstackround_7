@@ -3,14 +3,17 @@ import PropTypes from 'prop-types'
 import { update, removeBlog } from '../services/blogs'
 import { useMutation, useQueryClient } from 'react-query'
 import { useNotificationDispatch } from '../notificationContext'
+import { Link } from 'react-router-dom'
 
 const Blog = (props) => {
   const dispatch = useNotificationDispatch()
   const blog = props.blog
+  if (!blog) return null
   const queryClient = useQueryClient()
   const updateBlogMutation = useMutation(update, {
     onSuccess: () => {
       queryClient.invalidateQueries('blogs')
+      queryClient.invalidateQueries('users')
     }
   })
   const removeBlogMutation = useMutation(removeBlog, {
@@ -19,12 +22,8 @@ const Blog = (props) => {
     }
   })
   const [blogObject, setBlogObject] = useState(blog)
-  const [show, setShow] = useState(false)
-  const showing = { display: show ? '' : 'none' }
+  const [comment, editComment]= useState('')
 
-  const toggleShowing = () => setShow(!show)
-
-  const textforbutton = show ? 'hide' : 'view'
 
   const setMessage = (message, error) => {
     dispatch({
@@ -49,8 +48,31 @@ const Blog = (props) => {
       setMessage(`${blogObject.title} couldn't be updated!`, true)
     }
   }
+  const handlecomment = (event) => {
+    editComment(event.target.value)
+  }
+  const addcomment = () => {
+    console.log(comment)
+    try {
+      const updatedBlog = {
+        ...blogObject,
+        comments: blogObject.comments.concat(comment)
+      }
+      setBlogObject(updatedBlog)
+      updateBlogMutation.mutate(updatedBlog)
+      setMessage(`New comment on ${blogObject.title}`, false)
+    } catch {
+      setMessage('comment not working', true)
+    }
+    editComment('')
+  }
   const removequestion = () => {
-    if (window.confirm(`Are you sure you want to delete ${blogObject.title} by ${blogObject.author} ?`)) remove()
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${blogObject.title} by ${blogObject.author} ?`
+      )
+    )
+      remove()
   }
   const remove = () => {
     try {
@@ -71,17 +93,13 @@ const Blog = (props) => {
   return (
     <div style={blogStyle} className="blog">
       <span>
-        <p>
+        <h2>
           {blog.title} ~ {blog.author}{' '}
-          <button id="view-button" onClick={toggleShowing}>
-            {' '}
-            {textforbutton}{' '}
-          </button>
-        </p>
+        </h2>
       </span>
-      <div style={showing}>
+      <div>
         <span>
-          <p> {blog.url} </p>
+          <Link to={blog.url}>{blog.url}</Link>
           <p>
             {' '}
             {blogObject.likes}{' '}
@@ -89,7 +107,7 @@ const Blog = (props) => {
               like
             </button>
           </p>
-          <p> {blog.user.name} </p>
+          <p> added by {blog.user.name} </p>
           {blog.user.username === props.user.username ? (
             <p>
               {' '}
@@ -100,6 +118,23 @@ const Blog = (props) => {
           ) : (
             <p> </p>
           )}
+          <h3>Comments </h3>
+          <form onSubmit={addcomment}>
+            <div>
+                commment: <input
+                value={comment}
+                onChange={handlecomment}/>
+            </div>
+            <button> save </button>
+          </form>
+          <ul>
+            {blogObject.comments
+              .map((comment, indx) => (
+                <li key={indx}>
+                  {comment}
+                </li>
+              ))}
+          </ul>
         </span>
       </div>
     </div>
@@ -107,7 +142,7 @@ const Blog = (props) => {
 }
 
 Blog.propTypes = {
-  blog: PropTypes.object.isRequired,
+  blog: PropTypes.object,
   user: PropTypes.object.isRequired
 }
 

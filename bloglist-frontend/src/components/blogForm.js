@@ -14,7 +14,10 @@ const BlogForm = () => {
       queryClient.invalidateQueries('blogs')
     },
     onError: () => {
-      setMessage('Error happeden while adding the blog, some of the properties are unfit for a blog', true)
+      setMessage(
+        'Error happeden while adding the blog, some of the properties are unfit for a blog',
+        true
+      )
     }
   })
 
