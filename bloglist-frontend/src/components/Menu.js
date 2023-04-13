@@ -1,5 +1,7 @@
-import { Link } from 'react-router-dom'
+//import { Link } from 'react-router-dom'
 import Notification from './Notification'
+import { Button } from 'react-bootstrap'
+import { Navbar, Nav } from 'react-bootstrap'
 
 const Menu = ({ name, handleLogout }) => {
   const padding = {
@@ -7,18 +9,20 @@ const Menu = ({ name, handleLogout }) => {
   }
   return (
     <div>
-      <div>
-        <Link style={padding} to="/">
+      <Navbar bg="light" variant="light">
+        <Nav>
+          <Navbar.Brand style={padding} href="/">
           blogs
-        </Link>
-        <Link style={padding} to="/users">
+          </Navbar.Brand>
+          <Navbar.Brand style={padding} href="/users">
           users
-        </Link>
-        {name} logged in
-        <button onClick={handleLogout} type="submit">
+          </Navbar.Brand>
+          <Navbar.Brand>{name} logged in</Navbar.Brand>
+          <Button variant="outline-primary" onClick={handleLogout} type="submit">
           logout
-        </button>
-      </div>
+          </Button>
+        </Nav>
+      </Navbar>
       <Notification />
     </div>
   )

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { create } from '../services/blogs'
 import { useMutation, useQueryClient } from 'react-query'
 import { useNotificationDispatch } from '../notificationContext'
+import { Button, Form } from 'react-bootstrap'
 
 const BlogForm = () => {
   const [newBlog, setnewBlog] = useState('')
@@ -63,38 +64,26 @@ const BlogForm = () => {
   return (
     <div>
       <h2>Create a new note</h2>
-      <form onSubmit={addBlog}>
-        <div>
-          <input
-            id="title"
-            type="text"
-            placeholder="Title"
-            value={newBlog}
-            onChange={handleTitle}
-          />
-        </div>
-        <div>
-          <input
-            id="author"
-            type="text"
-            placeholder="Author"
-            value={newBlogAuth}
-            onChange={handleAuth}
-          />
-        </div>
-        <div>
-          <input
-            id="url"
-            type="text"
-            placeholder="Url"
-            value={newBlogUrl}
-            onChange={handleUrl}
-          />
-        </div>
-        <button id="save" type="submit">
+      <Form onSubmit={addBlog}>
+        <Form.Control
+          className="w-50"
+          placeholder="Title"
+          onChange={handleTitle}
+        />
+        <Form.Control
+          className="w-50"
+          placeholder="Author"
+          onChange={handleAuth}
+        />
+        <Form.Control
+          className="w-50"
+          placeholder="Url address"
+          onChange={handleUrl}
+        />
+        <Button variant="outline-primary" id="save" type="submit">
           save
-        </button>
-      </form>
+        </Button>
+      </Form>
     </div>
   )
 }

@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
+import { Routes, Route, useMatch, Link } from 'react-router-dom'
+import { useQuery } from 'react-query'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import { getUsers } from './services/users'
+import { getAll } from './services/blogs'
 import Togglable from './components/Togglable'
 import LoginForm from './components/loginForm'
 import BlogForm from './components/blogForm'
-import { useNotificationDispatch } from './notificationContext'
-import { useQuery } from 'react-query'
-import { getAll } from './services/blogs'
+import Blog from './components/Blog'
 import Menu from './components/Menu'
-import { Routes, Route, useMatch, Link } from 'react-router-dom'
 import User from './components/user'
-import { getUsers } from './services/users'
 import UserBlogList from './components/userBlogList'
+import { useNotificationDispatch } from './notificationContext'
+import { Table, Container } from 'react-bootstrap'
 
 const App = () => {
   const [username, setUsername] = useState('')
@@ -90,12 +91,10 @@ const App = () => {
   }
 
   return (
-    <div>
+    <Container fluid>
       {user === null ? (
         <Togglable buttonLabel="login">
           <LoginForm
-            username={username}
-            password={password}
             handleUsernameChange={({ target }) => setUsername(target.value)}
             handlePasswordChange={({ target }) => setPassword(target.value)}
             handleSubmit={handleLogin}
@@ -113,19 +112,23 @@ const App = () => {
                   <Togglable buttonLabel="new blog" ref={blogFormRef}>
                     <BlogForm />
                   </Togglable>
-                  <ul>
-                    {blogs
-                      .sort((blog, blog2) => blog2.likes - blog.likes)
-                      .map((blog) => (
-                        <li key={blog.id}>
-                          {' '}
-                          <Link to={`/blogs/${blog.id}`}>
+                  <Table striped bordered hover>
+                    <tbody>
+                      {blogs
+                        .sort((blog, blog2) => blog2.likes - blog.likes)
+                        .map((blog) => (
+                          <tr key={blog.id}>
                             {' '}
-                            {blog.title} by {blog.author}{' '}
-                          </Link>{' '}
-                        </li>
-                      ))}
-                  </ul>
+                            <td>
+                              <Link to={`/blogs/${blog.id}`}>
+                                {' '}
+                                {blog.title} by {blog.author}{' '}
+                              </Link>{' '}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </Table>
                 </div>
               }
             />
@@ -153,18 +156,20 @@ const App = () => {
                 <div>
                   <h2> Users </h2>
                   <p> blogs created by the user </p>
-                  {users.map((user) => (
-                    <table key={user.id}>
-                      <tbody>{<User user={user} />}</tbody>
-                    </table>
-                  ))}
+                  <Table striped bordered hover>
+                    <tbody>
+                      {users.map((user) => (
+                        <User key ={user.id} user={user} />
+                      ))}
+                    </tbody>
+                  </Table>
                 </div>
               }
             />
           </Routes>
         </div>
       )}
-    </div>
+    </Container>
   )
 }
 

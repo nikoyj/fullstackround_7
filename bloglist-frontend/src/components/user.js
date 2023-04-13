@@ -5,9 +5,8 @@ const User = ({ user }) => {
   return (
     <tr>
       <td>
-        <Link to={`/users/${user.id}`}>{user.name}</Link>
+        <Link to={`/users/${user.id}`}>{user.name}</Link> has {user.blogs.length} blogs
       </td>
-      <td>has {user.blogs.length} blogs </td>
     </tr>
   )
 }

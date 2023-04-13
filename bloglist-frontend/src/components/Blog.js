@@ -4,6 +4,7 @@ import { update, removeBlog } from '../services/blogs'
 import { useMutation, useQueryClient } from 'react-query'
 import { useNotificationDispatch } from '../notificationContext'
 import { Link } from 'react-router-dom'
+import { Button, Form } from 'react-bootstrap'
 
 const Blog = (props) => {
   const dispatch = useNotificationDispatch()
@@ -103,30 +104,30 @@ const Blog = (props) => {
           <p>
             {' '}
             {blogObject.likes}{' '}
-            <button id="like-button" onClick={like} type="like">
+            <Button variant="outline-primary" id="like-button" onClick={like} type="like">
               like
-            </button>
+            </Button>
           </p>
           <p> added by {blog.user.name} </p>
           {blog.user.username === props.user.username ? (
             <p>
               {' '}
-              <button onClick={removequestion} type="delete">
+              <Button variant="outline-danger" onClick={removequestion} type="delete">
                 delete
-              </button>
+              </Button>
             </p>
           ) : (
             <p> </p>
           )}
           <h3>Comments </h3>
-          <form onSubmit={addcomment}>
-            <div>
-                commment: <input
-                value={comment}
+          <Form onSubmit={addcomment}>
+            <Form.Group>
+              <Form.Label>commment:</Form.Label>
+              <Form.Control
                 onChange={handlecomment}/>
-            </div>
-            <button> save </button>
-          </form>
+              <Button variant="outline-primary" type="submit">  save </Button>
+            </Form.Group>
+          </Form>
           <ul>
             {blogObject.comments
               .map((comment, indx) => (
